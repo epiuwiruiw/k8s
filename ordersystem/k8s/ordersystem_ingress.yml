@@ -16,7 +16,7 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: /(.*)
+        path: /
         backend:
           service:
             name: ordersystem-service
