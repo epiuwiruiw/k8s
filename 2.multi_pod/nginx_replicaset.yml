@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-replicaset
+  namespace: mj
+spec:
+  replicas: 2
+  # 아래 요소는 replicaset이 관리할 파드를 선택하기 위한이 ㅣ읆
+  # template.metadata.labels의 이름과 일치해야ㅏㅁㅎ=ㅏ
+  selector:
+    matchLabels:
+      app: my-nginx
+  template:
+  # 아래 labels.app부분은 service의 selector부분과 일치해야 하고, 위의matchLabels와도 일치해야 한다
+  # metadata.le
+    metadata:
+      labels:
+        app: my-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+          - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: mj
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30207
+  selector:
+    app: my-nginx
