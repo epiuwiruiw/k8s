@@ -1,23 +1,24 @@
-# docker 빌드 후 ecr 업로드 및 kubectl apply
-
+# docker 빌드 후 erc 업로드 및 kubectl apply
 name: deploy ordersystem with k8s
 on:
   push:
     branches:
       - main
+      
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: checkout github
         uses: actions/checkout@v2
-
-      - name: install kubectl
+# 가상 pc 에 kubectl 을 설치해 주어야 한다.
+      - name: install kubectl 
         uses: azure/setup-kubectl@v3
         with:
+        # 너무 최신 버전을 쓰면 못 따라 올 수 있다. 우리는 1.29.몇 쓰고 있음
           version: "v1.25.9"
         id: install
-
+      
       - name: configure aws
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -26,18 +27,20 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: update cluster information
-        run: aws eks update-kubeconfig --name 2team-cluster --region ap-northeast-2 
+      # 우리 팀 cluster 이름
+        run: aws eks update-kubeconfig --name 4team-cluster --region ap-northeast-2
 
       - name: login ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: build and push docker images to ecr
-        env:
-          REGISTRY: 346903264902.dkr.ecr.ap-northeast-2.amazonaws.com
-          
+        env: 
           REPOSITORY: minji-ordersystem
-        run:
+          REGISTRY: 346903264902.dkr.ecr.ap-northeast-2.amazonaws.com
+        # 줄바꿈을 할 때에는 \ 를 써야 한다.
+        # 앞에는 도커 파일 위치, 뒤에는 build context 위치
+        run: |
           docker build -t $REGISTRY/$REPOSITORY:latest \
           -f ./ordersystem/Dockerfile ./ordersystem
           docker push $REGISTRY/$REPOSITORY:latest
