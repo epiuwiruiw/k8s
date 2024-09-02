@@ -15,8 +15,8 @@ spec:
   - host: server.minji2276.shop
     http:
       paths:
-      - pathType: Prefix
-        path: /
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: ordersystem-service
